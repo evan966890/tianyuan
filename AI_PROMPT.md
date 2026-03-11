@@ -20,6 +20,7 @@ SUCCESS_CONDITION:
   - four_agents_installed
   - shared_profile_installed
   - onboarding_skill_installed
+  - bundled_repo_skills_installed
   - extra_skills_installed_if_user_provided
   - first_dm_on_pending_profile_enters_interactive_onboarding
 
@@ -27,6 +28,7 @@ RUN:
   - npm install
   - npm run provision:feishu
   - npm run configure:openclaw
+  - bash scripts/install-skills.sh
 
 OPTIONAL_FLAGS:
   profile_json: npm run configure:openclaw -- --profile-json /abs/path/to/profile.json

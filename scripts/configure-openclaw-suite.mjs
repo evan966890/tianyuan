@@ -238,6 +238,24 @@ async function main() {
 
   const sharedRoot = path.join(suiteRoot, "shared");
   const nextConfig = structuredClone(config);
+  nextConfig.tools ??= {};
+  nextConfig.tools.profile ??= "full";
+  nextConfig.messages ??= {};
+  nextConfig.messages.queue = {
+    mode: nextConfig.messages.queue?.mode ?? "collect",
+    debounceMs: nextConfig.messages.queue?.debounceMs ?? 2000,
+    cap: nextConfig.messages.queue?.cap ?? 20,
+    drop: nextConfig.messages.queue?.drop ?? "old",
+  };
+  nextConfig.messages.inbound = {
+    ...(nextConfig.messages.inbound ?? {}),
+    debounceMs: nextConfig.messages.inbound?.debounceMs ?? 3000,
+    byChannel: {
+      ...(nextConfig.messages.inbound?.byChannel ?? {}),
+      feishu: nextConfig.messages.inbound?.byChannel?.feishu ?? 3000,
+    },
+  };
+  nextConfig.messages.ackReactionScope ??= "group-mentions";
   nextConfig.channels ??= {};
   nextConfig.channels.feishu ??= {};
   nextConfig.channels.feishu.enabled = true;

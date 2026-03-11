@@ -16,12 +16,16 @@
 ## 目录
 
 - `AI_PROMPT.md`：给本地 AI 的执行提示
+- `AI_SPEC.yaml`：机器可执行安装规格
 - `apps/questionnaire/`：纯前端单页问卷
+- `config/messages-and-queue.md`：消息防抖和队列策略
 - `lib/`：问卷字段、Markdown 生成器、suite 清单、Node 辅助函数
 - `scripts/`：问卷预览、飞书建 bot、OpenClaw 注入、一键安装
+- `skills/`：仓库内置的 5 个可选全局技能
 - `shared-profile/`：共享 `USER.md` / `MEMORY.md` / `TOOLS.md` 初始模板
 - `templates/agents/`：4 个 agent 的独立文件模板
 - `templates/skills/executive-profile-onboarding/`：首次角色初始化 skill
+- `troubleshooting/mimo-tool-calls.md`：MiMo / 非 Claude 工具调用修复
 - `tools/feishu-automation/`：ClawMom 飞书自动化脚本副本
 
 ## 前置要求
@@ -80,6 +84,8 @@ npm run configure:openclaw
 
 - 在 `~/.openclaw/executive-feishu-suite/` 生成 4 个 agent workspace
 - 安装共享 skill 到 `~/.openclaw/skills/executive-profile-onboarding`
+- 为 OpenAI 兼容模型补 `tools.profile = full`
+- 为飞书补默认消息防抖与队列配置
 - 增量更新 `~/.openclaw/openclaw.json`
 - 为 4 个 Feishu account 建立 `bindings`
 - 为 second-brain 挂载 `radar/INTERESTS.md`
@@ -105,6 +111,21 @@ npm run setup:all
 1. 创建 4 个飞书应用
 2. 安装 suite 到 `~/.openclaw`
 3. 写入共享画像与 4 个 agent 模板
+
+## 安装仓库内置技能
+
+```bash
+npm run install:skills
+```
+
+默认会安装：
+
+- `executive-profile-onboarding`
+- `ai-it-radar`
+- `care-companion`
+- `fun-feed`
+- `music-scout`
+- `xiaomi-sentinel`
 
 ## 首次初始化方式
 

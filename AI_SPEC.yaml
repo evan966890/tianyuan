@@ -8,8 +8,11 @@ repo_contract:
     - README.md
     - AGENTS.md
     - package.json
+    - config/messages-and-queue.md
+    - troubleshooting/mimo-tool-calls.md
     - scripts/provision-feishu-bots.mjs
     - scripts/configure-openclaw-suite.mjs
+    - scripts/install-skills.sh
   runtime_secret_paths_do_not_commit:
     - .state/feishu-accounts.json
     - .state/feishu-artifacts/
@@ -18,6 +21,7 @@ repo_contract:
 objective:
   install_four_agents_into_openclaw: true
   install_shared_onboarding_skill: true
+  bundled_global_skills_available: true
   support_extra_skills_install: true
   first_dm_must_start_with_interactive_onboarding_when_user_pending: true
   prevent_duplicate_feishu_apps: true
@@ -54,6 +58,8 @@ commands:
     configure_suite: npm run configure:openclaw -- --extra-skills /abs/path/to/skillA,/abs/path/to/skillB
   dry_run:
     configure_suite: npm run configure:openclaw -- --dry-run
+  install_bundled_skills:
+    install_skills: bash scripts/install-skills.sh
 
 copy_plan:
   suite_root: ~/.openclaw/executive-feishu-suite
@@ -184,6 +190,29 @@ skill_install_plan:
     input_format: comma_separated_absolute_or_repo_relative_skill_directories
     target_root: ~/.openclaw/skills
     install_rule: for_each_source_copy_directory_to_target_root_using_basename
+  bundled_repo_skills:
+    source_root: skills/
+    target_root: ~/.openclaw/skills
+    skill_dirs:
+      - ai-it-radar
+      - care-companion
+      - fun-feed
+      - music-scout
+      - xiaomi-sentinel
+    install_script: bash scripts/install-skills.sh
+
+queue_and_tool_rules:
+  source_doc: config/messages-and-queue.md
+  required_defaults:
+    tools.profile: full
+    messages.queue.mode: collect
+    messages.queue.debounceMs: 2000
+    messages.queue.cap: 20
+    messages.queue.drop: old
+    messages.inbound.debounceMs: 3000
+    messages.inbound.byChannel.feishu: 3000
+    messages.ackReactionScope: group-mentions
+  mimo_doc: troubleshooting/mimo-tool-calls.md
 
 first_dm_rules:
   activation_condition:
@@ -215,6 +244,14 @@ openclaw_config_rules:
     meta: {}
     bindings: []
   required_mutations:
+    tools.profile: full
+    messages.queue.mode: collect
+    messages.queue.debounceMs: 2000
+    messages.queue.cap: 20
+    messages.queue.drop: old
+    messages.inbound.debounceMs: 3000
+    messages.inbound.byChannel.feishu: 3000
+    messages.ackReactionScope: group-mentions
     channels.feishu.enabled: true
     channels.feishu.connectionMode: websocket
     channels.feishu.dmPolicy: open
@@ -264,6 +301,11 @@ feishu_provision_rules:
 
 verify:
   file_exists:
+    - ~/.openclaw/skills/ai-it-radar/SKILL.md
+    - ~/.openclaw/skills/care-companion/SKILL.md
+    - ~/.openclaw/skills/fun-feed/SKILL.md
+    - ~/.openclaw/skills/music-scout/SKILL.md
+    - ~/.openclaw/skills/xiaomi-sentinel/SKILL.md
     - ~/.openclaw/executive-feishu-suite/shared/USER.md
     - ~/.openclaw/executive-feishu-suite/shared/MEMORY.md
     - ~/.openclaw/executive-feishu-suite/shared/TOOLS.md

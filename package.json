@@ -8,7 +8,8 @@
     "provision:feishu": "node scripts/provision-feishu-bots.mjs",
     "configure:openclaw": "node scripts/configure-openclaw-suite.mjs",
     "setup:all": "node scripts/setup-suite.mjs",
-    "validate:skill": "node scripts/validate-skill.mjs templates/skills/executive-profile-onboarding"
+    "validate:skill": "node scripts/validate-skill.mjs templates/skills/executive-profile-onboarding",
+    "install:skills": "bash scripts/install-skills.sh"
   },
   "dependencies": {
     "@larksuiteoapi/node-sdk": "^1.59.0",
