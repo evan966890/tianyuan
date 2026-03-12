@@ -7,11 +7,12 @@
 - 生活助理 `life-concierge`
 - 知识管家 `second-brain`
 
-仓库同时包含三类能力：
+仓库同时包含四类能力：
 
 1. 4 个 agent 的完整 workspace 模板
 2. 高管画像问卷与 `USER.md` / `MEMORY.md` / `radar/INTERESTS.md` 生成器
 3. 读取 ClawMom 飞书自动化脚本后封装的一键建 bot + OpenClaw 配置注入脚本
+4. 语音输入 / 飞书语音回复技能与对应配置
 
 ## 目录
 
@@ -21,7 +22,8 @@
 - `config/messages-and-queue.md`：消息防抖和队列策略
 - `lib/`：问卷字段、Markdown 生成器、suite 清单、Node 辅助函数
 - `scripts/`：问卷预览、飞书建 bot、OpenClaw 注入、一键安装
-- `skills/`：仓库内置的 5 个可选全局技能
+- `docs/feishu-voice.md`：飞书语音能力说明与验证结论
+- `skills/`：仓库内置的全局技能
 - `shared-profile/`：共享 `USER.md` / `MEMORY.md` / `TOOLS.md` 初始模板
 - `templates/agents/`：4 个 agent 的独立文件模板
 - `templates/skills/executive-profile-onboarding/`：首次角色初始化 skill
@@ -93,6 +95,10 @@ npm run configure:openclaw
 - 安装共享 skill 到 `~/.openclaw/skills/executive-profile-onboarding`
 - 为 OpenAI 兼容模型补 `tools.profile = full`
 - 为飞书补默认消息防抖与队列配置
+- 启用 Feishu 插件，并写入当前版本兼容的多账号 schema
+- 为入站语音补 `tools.media.audio.enabled = true`
+- 为语音回复补 `messages.tts` 默认配置（默认不自动发语音）
+- 如果当前配置里有旧的 `meta.lastExecutiveSuiteSyncAt`，会自动移除
 - 增量更新 `~/.openclaw/openclaw.json`
 - 为 4 个 Feishu account 建立 `bindings`
 - 为 second-brain 挂载 `radar/INTERESTS.md`
@@ -119,7 +125,7 @@ npm run setup:all
 1. 创建 4 个飞书应用
 2. 安装 suite 到 `~/.openclaw`
 3. 写入共享画像与 4 个 agent 模板
-4. 安装仓库内置的 5 个额外 skills
+4. 安装仓库内置 skills（含语音能力）
 
 如果当前机器已经有可复用的 `.state/feishu-accounts.json`，可以执行：
 
@@ -141,14 +147,33 @@ npm run install:skills
 - `meeting-prep-pack`
 - `action-closure-tracker`
 - `executive-travel-desk`
+- `feishu-voice-reply`
 - `gift-and-hospitality`
 - `source-reliability-triage`
 - `note-synthesis-linker`
+- `voice-note-intake`
 - `ai-it-radar`
 - `care-companion`
 - `fun-feed`
 - `music-scout`
 - `xiaomi-sentinel`
+
+## 语音能力
+
+仓库现在内置两条语音工作流：
+
+- `voice-note-intake`
+  - 用户发语音、录音、音频附件时，先基于 transcript 理解诉求，再用最少追问推进
+- `feishu-voice-reply`
+  - 用户明确要语音回复时，先做 TTS，再转 `.opus`，优先通过 `message` 工具发成飞书语音气泡；若遇到上游 bug，再回退到直连飞书 API
+
+飞书语音的关键约束见 [docs/feishu-voice.md](docs/feishu-voice.md)：
+
+- 不要在文本里写 `MEDIA:`
+- 必须通过 `message` 工具发送
+- 本地文件要放到 `~/.openclaw/media/` 或允许目录
+- 不要跨 app 复用旧 `open_id`
+- 当前仓库也内置了 `clawgirl` 同类回退脚本，可在 OpenClaw 媒体发送异常时继续发飞书原生语音
 
 ## 首次初始化方式
 

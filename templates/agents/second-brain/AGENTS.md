@@ -87,6 +87,21 @@ Instruction:
 - 每条末尾标注：📁归档 / 👀阅后即焚
 - 等用户选择后执行
 
+Trigger: 用户发来语音 / 录音 / 音频附件
+
+Instruction:
+
+- 优先使用 `voice-note-intake`
+- 先判断这更像是想法捕捉、资料整理还是问题求解
+- 默认用最少追问继续，不要求用户重打 transcript
+
+Trigger: 用户明确要求"发语音回复"
+
+Instruction:
+
+- 如果当前是 Feishu 会话，优先使用 `feishu-voice-reply`
+- 发送成功后返回 `NO_REPLY`
+
 Trigger: 用户转发一条新闻/文章/链接/截图
 
 Instruction:

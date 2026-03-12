@@ -90,8 +90,39 @@ function defaultOpenClawConfig() {
     channels: {},
     gateway: {},
     plugins: {},
-    meta: {},
     bindings: [],
+  };
+}
+
+function ensureFeishuPlugin(nextConfig) {
+  nextConfig.plugins ??= {};
+  nextConfig.plugins.entries ??= {};
+  nextConfig.plugins.entries.feishu = {
+    ...(nextConfig.plugins.entries.feishu ?? {}),
+    enabled: true,
+  };
+}
+
+function ensureVoiceSupport(nextConfig) {
+  nextConfig.tools ??= {};
+  nextConfig.tools.media ??= {};
+  nextConfig.tools.media.audio = {
+    ...(nextConfig.tools.media.audio ?? {}),
+    enabled: nextConfig.tools.media.audio?.enabled ?? true,
+    maxBytes: nextConfig.tools.media.audio?.maxBytes ?? 20 * 1024 * 1024,
+    echoTranscript: nextConfig.tools.media.audio?.echoTranscript ?? false,
+  };
+
+  nextConfig.messages ??= {};
+  nextConfig.messages.tts = {
+    ...(nextConfig.messages.tts ?? {}),
+    auto: nextConfig.messages.tts?.auto ?? "off",
+    mode: nextConfig.messages.tts?.mode ?? "final",
+    maxTextLength: nextConfig.messages.tts?.maxTextLength ?? 1200,
+    edge: {
+      ...(nextConfig.messages.tts?.edge ?? {}),
+      enabled: nextConfig.messages.tts?.edge?.enabled ?? true,
+    },
   };
 }
 
@@ -290,15 +321,22 @@ async function main() {
     },
   };
   nextConfig.messages.ackReactionScope ??= "group-mentions";
+  ensureVoiceSupport(nextConfig);
+  ensureFeishuPlugin(nextConfig);
   nextConfig.channels ??= {};
   nextConfig.channels.feishu ??= {};
   nextConfig.channels.feishu.enabled = true;
   nextConfig.channels.feishu.connectionMode ??= "websocket";
-  nextConfig.channels.feishu.dmPolicy ??= "open";
-  nextConfig.channels.feishu.allowFrom ??= ["*"];
   nextConfig.channels.feishu.accounts = {
     ...(nextConfig.channels.feishu.accounts ?? {}),
   };
+  nextConfig.channels.feishu.accounts.default = {
+    ...(nextConfig.channels.feishu.accounts.default ?? {}),
+    dmPolicy: nextConfig.channels.feishu.accounts.default?.dmPolicy ?? nextConfig.channels.feishu.dmPolicy ?? "open",
+    allowFrom: nextConfig.channels.feishu.accounts.default?.allowFrom ?? nextConfig.channels.feishu.allowFrom ?? ["*"],
+  };
+  delete nextConfig.channels.feishu.dmPolicy;
+  delete nextConfig.channels.feishu.allowFrom;
 
   for (const spec of AGENT_SPECS) {
     const account = accountsData.accounts?.[spec.id];
@@ -313,14 +351,19 @@ async function main() {
   }
 
   nextConfig.channels.feishu.defaultAccount ??= Object.keys(nextConfig.channels.feishu.accounts)[0];
+  nextConfig.gateway ??= {};
+  nextConfig.gateway.mode ??= "local";
+  nextConfig.gateway.bind ??= "loopback";
   nextConfig.agents ??= {};
   nextConfig.agents.defaults ??= {};
   nextConfig.agents.list = mergeAgentEntries(nextConfig, openclawHome, suiteRoot);
   nextConfig.bindings = mergeBindings(nextConfig);
-  nextConfig.meta = {
-    ...(nextConfig.meta ?? {}),
-    lastExecutiveSuiteSyncAt: new Date().toISOString(),
-  };
+  if (nextConfig.meta && typeof nextConfig.meta === "object") {
+    delete nextConfig.meta.lastExecutiveSuiteSyncAt;
+    if (!Object.keys(nextConfig.meta).length) {
+      delete nextConfig.meta;
+    }
+  }
 
   const summary = {
     suiteRoot,

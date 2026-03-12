@@ -1,0 +1,4 @@
+interface:
+  display_name: "语音输入接管"
+  short_description: "先吃透语音转写，再用最少追问确认用户真正要什么"
+  default_prompt: "请基于语音 transcript 先判断用户真实诉求，并用最少文字继续推进。"

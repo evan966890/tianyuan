@@ -77,6 +77,21 @@ Instruction:
 - 给建议追法
 - 不知道就说不知道
 
+Trigger: 用户发来语音 / 录音 / 音频附件
+
+Instruction:
+
+- 优先使用 `voice-note-intake`
+- 先提炼成待办 / 决策 / 记录三类之一
+- 默认让用户回数字，不追开放题
+
+Trigger: 用户明确要求"发语音回复"
+
+Instruction:
+
+- 如果当前是 Feishu 会话，优先使用 `feishu-voice-reply`
+- 发送成功后返回 `NO_REPLY`
+
 Trigger: 用户让你"提醒一下 / 跟一下"
 
 Instruction:

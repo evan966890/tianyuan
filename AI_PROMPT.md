@@ -26,6 +26,7 @@ SUCCESS_CONDITION:
   - bundled_repo_skills_installed
   - extra_skills_installed_if_user_provided
   - first_dm_on_pending_profile_enters_interactive_onboarding
+  - voice_input_and_feishu_voice_reply_available
 
 RUN:
   - npm install
@@ -41,3 +42,4 @@ VERIFY:
   - inspect files listed in AI_SPEC.yaml.verify
   - inspect ~/.openclaw/openclaw.json mutations listed in AI_SPEC.yaml.openclaw_config_rules
   - if provision_executed_or_accounts_file_exists inspect ./.state/feishu-accounts.json for four accounts
+  - inspect docs/feishu-voice.md and ensure related voice skills were installed

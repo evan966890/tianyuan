@@ -202,12 +202,14 @@ skill_install_plan:
       - care-companion
       - decision-options-memo
       - executive-travel-desk
+      - feishu-voice-reply
       - fun-feed
       - gift-and-hospitality
       - meeting-prep-pack
       - music-scout
       - note-synthesis-linker
       - source-reliability-triage
+      - voice-note-intake
       - xiaomi-sentinel
     install_script: bash scripts/install-skills.sh
 
@@ -255,6 +257,7 @@ openclaw_config_rules:
     bindings: []
   required_mutations:
     tools.profile: full
+    tools.media.audio.enabled: true
     messages.queue.mode: collect
     messages.queue.debounceMs: 2000
     messages.queue.cap: 20
@@ -262,16 +265,23 @@ openclaw_config_rules:
     messages.inbound.debounceMs: 3000
     messages.inbound.byChannel.feishu: 3000
     messages.ackReactionScope: group-mentions
+    messages.tts.auto: off
+    messages.tts.mode: final
+    messages.tts.maxTextLength: 1200
     channels.feishu.enabled: true
     channels.feishu.connectionMode: websocket
-    channels.feishu.dmPolicy: open
-    channels.feishu.allowFrom:
+    channels.feishu.accounts.default.dmPolicy: open
+    channels.feishu.accounts.default.allowFrom:
       - "*"
     channels.feishu.accounts.must_contain:
+      - default
       - strategist
       - chief-of-staff
       - life-concierge
       - second-brain
+    plugins.entries.feishu.enabled: true
+    gateway.mode: local
+    gateway.bind: loopback
     agents.list.must_contain_ids:
       - strategist
       - chief-of-staff
@@ -294,6 +304,8 @@ openclaw_config_rules:
         match:
           channel: feishu
           accountId: second-brain
+  forbidden_keys:
+    - meta.lastExecutiveSuiteSyncAt
 
 feishu_provision_rules:
   create_script: scripts/provision-feishu-bots.mjs
@@ -317,13 +329,16 @@ verify:
     - ~/.openclaw/skills/care-companion/SKILL.md
     - ~/.openclaw/skills/decision-options-memo/SKILL.md
     - ~/.openclaw/skills/executive-travel-desk/SKILL.md
+    - ~/.openclaw/skills/feishu-voice-reply/SKILL.md
     - ~/.openclaw/skills/fun-feed/SKILL.md
     - ~/.openclaw/skills/gift-and-hospitality/SKILL.md
     - ~/.openclaw/skills/meeting-prep-pack/SKILL.md
     - ~/.openclaw/skills/music-scout/SKILL.md
     - ~/.openclaw/skills/note-synthesis-linker/SKILL.md
     - ~/.openclaw/skills/source-reliability-triage/SKILL.md
+    - ~/.openclaw/skills/voice-note-intake/SKILL.md
     - ~/.openclaw/skills/xiaomi-sentinel/SKILL.md
+    - ./docs/feishu-voice.md
     - ~/.openclaw/executive-feishu-suite/shared/USER.md
     - ~/.openclaw/executive-feishu-suite/shared/MEMORY.md
     - ~/.openclaw/executive-feishu-suite/shared/TOOLS.md

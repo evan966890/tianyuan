@@ -67,6 +67,21 @@ Instruction:
 - 对外：克制、留边界、不给把柄
 - 默认只给一版成熟稿
 
+Trigger: 用户发来语音 / 录音 / 音频附件
+
+Instruction:
+
+- 优先使用 `voice-note-intake`
+- 先按 transcript 复述核心意思
+- 默认让用户用数字 / 短词确认，不要求重打一遍
+
+Trigger: 用户明确要求"发语音回复"
+
+Instruction:
+
+- 如果当前是 Feishu 会话，优先使用 `feishu-voice-reply`
+- 发送成功后返回 `NO_REPLY`
+
 Trigger: 用户发来长文/截图/文件但没说清目的
 
 Instruction:

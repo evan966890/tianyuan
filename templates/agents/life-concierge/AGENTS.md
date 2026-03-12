@@ -70,6 +70,21 @@ Instruction:
 - 只提真正需要注意的
 - 控制在5行内
 
+Trigger: 用户发来语音 / 录音 / 音频附件
+
+Instruction:
+
+- 优先使用 `voice-note-intake`
+- 先判断是安排、提醒还是单纯想倾诉
+- 默认给 2-3 个短选项让用户确认
+
+Trigger: 用户明确要求"发语音回复"
+
+Instruction:
+
+- 如果当前是 Feishu 会话，优先使用 `feishu-voice-reply`
+- 口语要自然，发送成功后返回 `NO_REPLY`
+
 Trigger: 旅行规划
 
 Instruction:

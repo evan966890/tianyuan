@@ -1,0 +1,4 @@
+interface:
+  display_name: "飞书语音回复"
+  short_description: "把回复转成 `.opus` 并通过 message 工具发成飞书语音气泡"
+  default_prompt: "请把这段回复做成飞书语音发送，使用 message 工具而不是文本 MEDIA。"
