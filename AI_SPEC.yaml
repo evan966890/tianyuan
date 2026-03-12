@@ -1,7 +1,7 @@
 version: 1
 mode: strict_copy_and_configure
 repo_contract:
-  repo_name: tianyuan
+  repo_name: openclaw-bestroll-skills
   repo_root_required_files:
     - AI_PROMPT.md
     - AI_SPEC.yaml
