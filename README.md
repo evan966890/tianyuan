@@ -67,6 +67,7 @@ npm run provision:feishu
 - 若控制台已存在同名应用，会直接复用，不会重复创建
 - 若发现旧的 `OpenClaw xxx` 遗留应用，会直接中止，避免继续堆重复项
 - 首次运行会打开浏览器并等待你扫码登录飞书开放平台
+- 自动化会尽量关闭首登后的安全引导弹窗；为了避免重复触发，建议固定使用同一个 `--profile-dir`
 - 结果默认写入 `.state/feishu-accounts.json`
 - 如果当前机器已经有可用的 `.state/feishu-accounts.json`，这一步不是必须
 

@@ -15,7 +15,37 @@ const REQUIRED_EVENT = 'im.message.receive_v1';
 const execFileAsync = promisify(execFile);
 const INTERACTIVE_POLL_MS = 250;
 // Only dismiss clearly informational/notification popups — never "确定"/"取消" which could confirm destructive actions
-const POPUP_CLOSE_LABELS = ['我知道了', '知道了', '稍后', '稍后处理', '跳过', '关闭', '完成', 'Close', '下次再说'];
+const POPUP_CLOSE_LABELS = [
+  '我知道了',
+  '知道了',
+  '稍后',
+  '稍后处理',
+  '稍后再说',
+  '稍后再试',
+  '下次再说',
+  '以后再说',
+  '暂不体验',
+  '跳过',
+  '跳过引导',
+  '关闭',
+  '完成',
+  'Close',
+  'Later',
+  'Not now',
+];
+const SAFE_OVERLAY_SELECTOR = [
+  '[role="dialog"]',
+  '[aria-modal="true"]',
+  '[class*="modal"]',
+  '[class*="popup"]',
+  '[class*="toast"]',
+  '[class*="notice"]',
+  '[class*="Message"]',
+  '[class*="guide"]',
+  '[class*="tour"]',
+  '[class*="coach"]',
+  '[class*="drawer"]',
+].join(', ');
 const recentNetworkBodies = [];
 
 // --- Long Connection (WSClient) for event subscription ---
@@ -312,7 +342,7 @@ async function dismissInterferingPopups(page) {
   for (const label of POPUP_CLOSE_LABELS) {
     const regex = textRegex(label);
     // Search only within dialog/modal/popup containers
-    const scoped = page.locator('[role="dialog"], [class*="modal"], [class*="popup"], [class*="toast"], [class*="notice"], [class*="Message"]');
+    const scoped = page.locator(SAFE_OVERLAY_SELECTOR);
     const scopedBtn = await maybeVisible(scoped.getByRole('button', { name: regex }));
     if (!scopedBtn) continue;
     await scopedBtn.click({ timeout: 1000 }).catch(() => {});
@@ -321,10 +351,8 @@ async function dismissInterferingPopups(page) {
 
   // Only match close buttons inside popups/dialogs/modals — NOT action buttons like "关闭权限" on pages
   const closeButtons = page.locator(
-    '[role="dialog"] button[aria-label*="关闭"], [role="dialog"] button[aria-label*="close" i], ' +
-    '[class*="modal"] button[aria-label*="关闭"], [class*="modal"] button[aria-label*="close" i], ' +
-    '[class*="popup"] button[aria-label*="关闭"], [class*="popup"] button[aria-label*="close" i], ' +
-    '[class*="toast"] button[aria-label*="关闭"], [class*="toast"] button[aria-label*="close" i]'
+    `${SAFE_OVERLAY_SELECTOR} button[aria-label*="关闭"], ` +
+    `${SAFE_OVERLAY_SELECTOR} button[aria-label*="close" i]`
   );
   const closeButton = await maybeVisible(closeButtons);
   if (closeButton) {
@@ -333,7 +361,7 @@ async function dismissInterferingPopups(page) {
   }
 
   // Only click modal buttons with clearly safe dismiss labels — never empty text, never "取消"/"确定" which could be destructive
-  const modalCloseIcons = page.locator('[role="dialog"] button, [class*="modal"] button, [class*="dialog"] button');
+  const modalCloseIcons = page.locator(`${SAFE_OVERLAY_SELECTOR} button`);
   const modalCloseCount = await modalCloseIcons.count().catch(() => 0);
   for (let index = 0; index < Math.min(modalCloseCount, 6); index += 1) {
     const candidate = modalCloseIcons.nth(index);
@@ -353,6 +381,27 @@ async function dismissInterferingPopups(page) {
 
   if (closed) {
     await page.waitForTimeout(300);
+  }
+
+  return closed;
+}
+
+async function findConsoleReadyLocator(page) {
+  return (
+    (await findLocatorByText(page, ['创建企业自建应用', 'Create Custom App', '创建应用'])) ??
+    (await maybeVisible(page.getByPlaceholder(/搜索应用名称或 App ID/))) ??
+    (await maybeVisible(page.locator('tr.app-table__row[data-row-key], tr[data-row-key]').first()))
+  );
+}
+
+async function settleLoginLanding(page, rounds = 4) {
+  for (let round = 0; round < rounds; round += 1) {
+    const dismissed = await dismissInterferingPopups(page).catch(() => false);
+    if (!dismissed) {
+      break;
+    }
+    await page.waitForLoadState('networkidle').catch(() => {});
+    await waitForUiIdle(page, 2_000).catch(() => {});
   }
 }
 
@@ -1337,8 +1386,9 @@ async function waitForConsoleReady(page, portalUrl, loginTimeoutMs) {
   await page.goto(portalUrl, { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('networkidle').catch(() => {});
   await waitForUiIdle(page, 3_000).catch(() => {});
+  await settleLoginLanding(page).catch(() => {});
 
-  const loginReady = async () => findLocatorByText(page, ['创建企业自建应用', 'Create Custom App', '创建应用']);
+  const loginReady = async () => findConsoleReadyLocator(page);
   const visible = await loginReady();
   if (visible) {
     return;
@@ -1347,6 +1397,7 @@ async function waitForConsoleReady(page, portalUrl, loginTimeoutMs) {
   stderrLog('Waiting for QR-code login in the browser window');
   const end = Date.now() + loginTimeoutMs;
   while (Date.now() < end) {
+    await settleLoginLanding(page).catch(() => {});
     const locator = await loginReady();
     if (locator) {
       return;
@@ -2243,6 +2294,10 @@ async function main() {
     });
     await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin }).catch(() => {});
     page = context.pages()[0] ?? await context.newPage();
+    page.on('dialog', async (dialog) => {
+      stderrLog(`Dismissing browser dialog: ${dialog.message()}`);
+      await dialog.dismiss().catch(() => {});
+    });
     attachNetworkCapture(page);
 
     await runStep(result, 'login', () => waitForConsoleReady(page, portalUrl, loginTimeoutMs));
