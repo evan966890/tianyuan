@@ -38,6 +38,7 @@ RUN:
 OPTIONAL_FLAGS:
   profile_json: npm run configure:openclaw -- --profile-json /abs/path/to/profile.json
   extra_skills: npm run configure:openclaw -- --extra-skills /abs/path/to/skillA,/abs/path/to/skillB
+  openviking_memory: npm run install:openviking-memory -- --yes
 
 VERIFY:
   - inspect files listed in AI_SPEC.yaml.verify
@@ -45,3 +46,4 @@ VERIFY:
   - if provision_executed_or_accounts_file_exists inspect ./.state/feishu-accounts.json for four accounts
   - inspect docs/feishu-voice.md and ensure related voice skills were installed
   - inspect docs/doubao-image.md and ensure `doubao-image-studio` and `peekaboo` support were configured
+  - if user explicitly requested OpenViking memory, inspect docs/openviking-memory.md and run the wrapper script instead of reimplementing the plugin install

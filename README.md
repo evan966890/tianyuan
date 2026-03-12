@@ -14,6 +14,7 @@
 3. 读取 ClawMom 飞书自动化脚本后封装的一键建 bot + OpenClaw 配置注入脚本
 4. 语音输入 / 飞书语音回复技能与对应配置
 5. 复用用户 cookie 的豆包免费生图能力
+6. OpenViking 记忆插件的可选接入入口
 
 ## 目录
 
@@ -25,6 +26,7 @@
 - `scripts/`：问卷预览、飞书建 bot、OpenClaw 注入、一键安装
 - `docs/feishu-voice.md`：飞书语音能力说明与验证结论
 - `docs/doubao-image.md`：豆包免费生图与 cookie 复用说明
+- `docs/openviking-memory.md`：OpenViking 记忆插件可选接入说明
 - `skills/`：仓库内置的全局技能
 - `shared-profile/`：共享 `USER.md` / `MEMORY.md` / `TOOLS.md` 初始模板
 - `templates/agents/`：4 个 agent 的独立文件模板
@@ -137,6 +139,14 @@ npm run setup:all
 npm run setup:all -- --skip-provision
 ```
 
+如果你还想把 OpenViking 一起接进去：
+
+```bash
+npm run setup:all -- --install-openviking-memory
+```
+
+这一步是可选的，不会默认执行。
+
 ## 安装仓库内置技能
 
 ```bash
@@ -162,6 +172,28 @@ npm run install:skills
 - `fun-feed`
 - `music-scout`
 - `xiaomi-sentinel`
+
+## 可选：接入 OpenViking 记忆插件
+
+如果你希望升级 OpenClaw 的长程记忆，可以直接用仓库内包装器调用 OpenViking 官方安装脚本：
+
+```bash
+npm run install:openviking-memory
+```
+
+非交互模式：
+
+```bash
+npm run install:openviking-memory -- --yes
+```
+
+说明：
+
+- 仓库不会默认启用它
+- 这层包装器只负责把当前 `OPENCLAW_HOME` 补成默认 `--workdir`
+- 真正的安装逻辑仍然来自 OpenViking 官方脚本
+
+详细约束见 [docs/openviking-memory.md](docs/openviking-memory.md)。
 
 ## 语音能力
 

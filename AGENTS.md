@@ -16,6 +16,7 @@ This repo provisions a four-agent OpenClaw executive assistant suite for Feishu:
 3. If `.state/feishu-accounts.json` is missing or incomplete, use `npm run provision:feishu` to create or reconcile Feishu apps.
 4. Use `npm run configure:openclaw` to install the suite into `~/.openclaw`.
 5. Use `bash scripts/install-skills.sh` when bundled repo skills must also be installed.
+6. If the user explicitly asks for OpenViking memory, use `npm run install:openviking-memory` instead of hand-rolling plugin setup.
 
 ## Editing Notes
 

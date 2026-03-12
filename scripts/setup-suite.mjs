@@ -56,9 +56,19 @@ async function main() {
     const repoRoot = repoRootFromImport(import.meta.url);
     if (dryRun) {
       console.log(`[dry-run] bash ${path.join(repoRoot, "scripts", "install-skills.sh")}`);
+    } else {
+      await runShellStep("bash", [path.join(repoRoot, "scripts", "install-skills.sh")]);
+    }
+  }
+
+  if (args.installOpenvikingMemory) {
+    const repoRoot = repoRootFromImport(import.meta.url);
+    const scriptPath = path.join(repoRoot, "scripts", "install-openviking-memory.sh");
+    if (dryRun) {
+      console.log(`[dry-run] bash ${scriptPath}`);
       return;
     }
-    await runShellStep("bash", [path.join(repoRoot, "scripts", "install-skills.sh")]);
+    await runShellStep("bash", [scriptPath]);
   }
 }
 

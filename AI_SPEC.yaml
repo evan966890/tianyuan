@@ -227,6 +227,17 @@ queue_and_tool_rules:
     messages.ackReactionScope: group-mentions
   mimo_doc: troubleshooting/mimo-tool-calls.md
 
+optional_integrations:
+  openviking_memory:
+    when_user_explicitly_requests: true
+    source_doc: docs/openviking-memory.md
+    install_command: npm run install:openviking-memory
+    noninteractive_command: npm run install:openviking-memory -- --yes
+    notes:
+      - do_not_reimplement_openviking_installer
+      - use_repository_wrapper_script
+      - this_is_optional_not_default
+
 first_dm_rules:
   activation_condition:
     shared_user_md_contains: "<!-- executive-profile-status: pending -->"
