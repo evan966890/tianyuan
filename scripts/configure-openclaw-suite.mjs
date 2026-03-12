@@ -2,10 +2,17 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import os from "node:os";
 import process from "node:process";
 import { renderDocuments } from "../lib/profile-renderer.mjs";
 import { AGENT_SPECS, DEFAULT_FEISHU_ACCOUNTS_FILE, SUITE_ROOT_NAME } from "../lib/suite-manifest.mjs";
+import {
+  defaultOpenClawConfig,
+  ensureFeishuPlugin,
+  ensureVoiceSupport,
+  ensurePeekabooSupport,
+  ensureQueueDefaults,
+  ensureToolProfile,
+} from "../lib/openclaw-config.mjs";
 import {
   repoRootFromImport,
   parseArgs,
@@ -75,76 +82,6 @@ function validateAccountsData(accountsData, accountsPath) {
       `Usable Feishu accounts are required before configure: ${errors.join(", ")}. Run npm run provision:feishu first or provide --accounts with real credentials.`,
     );
   }
-}
-
-function defaultOpenClawConfig() {
-  return {
-    auth: {},
-    models: {},
-    agents: {
-      defaults: {},
-      list: [],
-    },
-    tools: {},
-    commands: {},
-    channels: {},
-    gateway: {},
-    plugins: {},
-    bindings: [],
-  };
-}
-
-function ensureFeishuPlugin(nextConfig) {
-  nextConfig.plugins ??= {};
-  nextConfig.plugins.entries ??= {};
-  nextConfig.plugins.entries.feishu = {
-    ...(nextConfig.plugins.entries.feishu ?? {}),
-    enabled: true,
-  };
-}
-
-function ensureVoiceSupport(nextConfig) {
-  nextConfig.tools ??= {};
-  nextConfig.tools.media ??= {};
-  nextConfig.tools.media.audio = {
-    ...(nextConfig.tools.media.audio ?? {}),
-    enabled: nextConfig.tools.media.audio?.enabled ?? true,
-    maxBytes: nextConfig.tools.media.audio?.maxBytes ?? 20 * 1024 * 1024,
-    echoTranscript: nextConfig.tools.media.audio?.echoTranscript ?? false,
-  };
-  if (!Array.isArray(nextConfig.tools.media.audio.models) || nextConfig.tools.media.audio.models.length === 0) {
-    nextConfig.tools.media.audio.models = [
-      {
-        type: "cli",
-        command: "whisper",
-        args: ["--model", "base", "{{MediaPath}}"],
-      },
-    ];
-  }
-
-  nextConfig.messages ??= {};
-  nextConfig.messages.tts = {
-    ...(nextConfig.messages.tts ?? {}),
-    auto: nextConfig.messages.tts?.auto ?? "off",
-    mode: nextConfig.messages.tts?.mode ?? "final",
-    maxTextLength: nextConfig.messages.tts?.maxTextLength ?? 1200,
-    edge: {
-      ...(nextConfig.messages.tts?.edge ?? {}),
-      enabled: nextConfig.messages.tts?.edge?.enabled ?? true,
-    },
-  };
-}
-
-function ensurePeekabooSupport(nextConfig) {
-  nextConfig.skills ??= {};
-  const allowBundled = new Set(Array.isArray(nextConfig.skills.allowBundled) ? nextConfig.skills.allowBundled : []);
-  allowBundled.add("peekaboo");
-  nextConfig.skills.allowBundled = [...allowBundled];
-  nextConfig.skills.entries ??= {};
-  nextConfig.skills.entries.peekaboo = {
-    ...(nextConfig.skills.entries.peekaboo ?? {}),
-    enabled: nextConfig.skills.entries.peekaboo?.enabled ?? true,
-  };
 }
 
 function parseCsvArg(value) {
@@ -324,24 +261,8 @@ async function main() {
 
   const sharedRoot = path.join(suiteRoot, "shared");
   const nextConfig = structuredClone(config);
-  nextConfig.tools ??= {};
-  nextConfig.tools.profile ??= "full";
-  nextConfig.messages ??= {};
-  nextConfig.messages.queue = {
-    mode: nextConfig.messages.queue?.mode ?? "collect",
-    debounceMs: nextConfig.messages.queue?.debounceMs ?? 2000,
-    cap: nextConfig.messages.queue?.cap ?? 20,
-    drop: nextConfig.messages.queue?.drop ?? "old",
-  };
-  nextConfig.messages.inbound = {
-    ...(nextConfig.messages.inbound ?? {}),
-    debounceMs: nextConfig.messages.inbound?.debounceMs ?? 3000,
-    byChannel: {
-      ...(nextConfig.messages.inbound?.byChannel ?? {}),
-      feishu: nextConfig.messages.inbound?.byChannel?.feishu ?? 3000,
-    },
-  };
-  nextConfig.messages.ackReactionScope ??= "group-mentions";
+  ensureToolProfile(nextConfig);
+  ensureQueueDefaults(nextConfig);
   ensureVoiceSupport(nextConfig);
   ensurePeekabooSupport(nextConfig);
   ensureFeishuPlugin(nextConfig);

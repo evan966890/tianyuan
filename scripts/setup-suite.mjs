@@ -52,6 +52,10 @@ async function main() {
     await runStep("configure-openclaw-suite.mjs", rawArgs);
   }
 
+  if (!args.skipNativeCapabilities) {
+    await runStep("ensure-native-capabilities.mjs", rawArgs);
+  }
+
   if (!args.skipSkillInstall) {
     const repoRoot = repoRootFromImport(import.meta.url);
     if (dryRun) {

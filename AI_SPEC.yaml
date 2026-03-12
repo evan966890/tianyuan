@@ -12,7 +12,9 @@ repo_contract:
     - troubleshooting/mimo-tool-calls.md
     - scripts/provision-feishu-bots.mjs
     - scripts/configure-openclaw-suite.mjs
+    - scripts/ensure-native-capabilities.mjs
     - scripts/install-skills.sh
+    - docs/native-capabilities.md
   runtime_secret_paths_do_not_commit:
     - .state/feishu-accounts.json
     - .state/feishu-artifacts/
@@ -23,6 +25,7 @@ objective:
   install_shared_onboarding_skill: true
   bundled_global_skills_available: true
   support_extra_skills_install: true
+  native_openclaw_capabilities_verified: true
   first_dm_must_start_with_interactive_onboarding_when_user_pending: true
   prevent_duplicate_feishu_apps: true
   canonical_feishu_bot_names:
@@ -46,6 +49,7 @@ execution_order:
   - npm install
   - if .state/feishu-accounts.json missing_or_incomplete then npm run provision:feishu
   - npm run configure:openclaw
+  - npm run ensure:native-capabilities
   - bash scripts/install-skills.sh
 
 commands:
@@ -53,6 +57,7 @@ commands:
     install_deps: npm install
     provision_feishu_if_needed: npm run provision:feishu
     configure_suite: npm run configure:openclaw
+    ensure_native_capabilities: npm run ensure:native-capabilities
     install_bundled_skills: bash scripts/install-skills.sh
   with_profile_json:
     configure_suite: npm run configure:openclaw -- --profile-json /abs/path/to/profile.json
@@ -60,6 +65,9 @@ commands:
     configure_suite: npm run configure:openclaw -- --extra-skills /abs/path/to/skillA,/abs/path/to/skillB
   dry_run:
     configure_suite: npm run configure:openclaw -- --dry-run
+  native_capabilities:
+    ensure: npm run ensure:native-capabilities
+    dry_run: npm run ensure:native-capabilities -- --dry-run
   install_bundled_skills:
     install_skills: bash scripts/install-skills.sh
 
@@ -227,6 +235,44 @@ queue_and_tool_rules:
     messages.ackReactionScope: group-mentions
   mimo_doc: troubleshooting/mimo-tool-calls.md
 
+native_capability_plan:
+  source_doc: docs/native-capabilities.md
+  dedupe_before_enable: true
+  core_tools_via_profile_full:
+    - web_search
+    - web_fetch
+    - browser
+    - pdf
+    - image
+    - tts
+    - Read
+    - Write
+    - Edit
+    - exec
+    - process
+    - subagents
+    - canvas
+    - message
+    - nodes
+  feishu_tool_providers:
+    - tool: feishu_doc
+      provider: feishu-doc
+    - tool: feishu_app_scopes
+      provider: feishu-perm
+    - tool: feishu_drive
+      provider: feishu-drive
+    - tool: feishu_wiki
+      provider: feishu-wiki
+    - tool: feishu_chat
+      provider: feishu plugin
+    - tool: feishu_bitable_*
+      provider: feishu plugin
+  bundled_native_provider_requirements:
+    skills_allow_bundled:
+      - peekaboo
+    skills_entries_enabled:
+      - peekaboo
+
 optional_integrations:
   openviking_memory:
     when_user_explicitly_requests: true
@@ -363,6 +409,7 @@ verify:
     - ~/.openclaw/skills/xiaomi-sentinel/SKILL.md
     - ./docs/feishu-voice.md
     - ./docs/doubao-image.md
+    - ./docs/native-capabilities.md
     - ~/.openclaw/executive-feishu-suite/shared/USER.md
     - ~/.openclaw/executive-feishu-suite/shared/MEMORY.md
     - ~/.openclaw/executive-feishu-suite/shared/TOOLS.md

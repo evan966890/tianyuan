@@ -15,8 +15,9 @@ This repo provisions a four-agent OpenClaw executive assistant suite for Feishu:
 2. Keep markdown generation logic in `lib/profile-renderer.mjs`.
 3. If `.state/feishu-accounts.json` is missing or incomplete, use `npm run provision:feishu` to create or reconcile Feishu apps.
 4. Use `npm run configure:openclaw` to install the suite into `~/.openclaw`.
-5. Use `bash scripts/install-skills.sh` when bundled repo skills must also be installed.
-6. If the user explicitly asks for OpenViking memory, use `npm run install:openviking-memory` instead of hand-rolling plugin setup.
+5. Use `npm run ensure:native-capabilities` to dedupe, enable, and verify OpenClaw native tools/plugins before treating them as missing.
+6. Use `bash scripts/install-skills.sh` when bundled repo skills must also be installed.
+7. If the user explicitly asks for OpenViking memory, use `npm run install:openviking-memory` instead of hand-rolling plugin setup.
 
 ## Editing Notes
 
@@ -32,4 +33,5 @@ This repo provisions a four-agent OpenClaw executive assistant suite for Feishu:
 
 - `npm run render:profile -- --demo`
 - `npm run configure:openclaw -- --dry-run`
+- `npm run ensure:native-capabilities -- --dry-run`
 - `npm run validate:skill`

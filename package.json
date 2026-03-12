@@ -7,6 +7,7 @@
     "render:profile": "node scripts/render-profile.mjs",
     "provision:feishu": "node scripts/provision-feishu-bots.mjs",
     "configure:openclaw": "node scripts/configure-openclaw-suite.mjs",
+    "ensure:native-capabilities": "node scripts/ensure-native-capabilities.mjs",
     "bootstrap:doubao-cookie": "node skills/doubao-image-studio/scripts/sync_user_browser_profile.mjs",
     "install:openviking-memory": "bash scripts/install-openviking-memory.sh",
     "setup:all": "node scripts/setup-suite.mjs",

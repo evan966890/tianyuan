@@ -7,14 +7,15 @@
 - 生活助理 `life-concierge`
 - 知识管家 `second-brain`
 
-仓库同时包含五类能力：
+仓库同时包含七类能力：
 
 1. 4 个 agent 的完整 workspace 模板
 2. 高管画像问卷与 `USER.md` / `MEMORY.md` / `radar/INTERESTS.md` 生成器
 3. 读取 ClawMom 飞书自动化脚本后封装的一键建 bot + OpenClaw 配置注入脚本
 4. 语音输入 / 飞书语音回复技能与对应配置
 5. 复用用户 cookie 的豆包免费生图能力
-6. OpenViking 记忆插件的可选接入入口
+6. OpenClaw 原生能力的启用、判重与校验脚本
+7. OpenViking 记忆插件的可选接入入口
 
 ## 目录
 
@@ -26,6 +27,7 @@
 - `scripts/`：问卷预览、飞书建 bot、OpenClaw 注入、一键安装
 - `docs/feishu-voice.md`：飞书语音能力说明与验证结论
 - `docs/doubao-image.md`：豆包免费生图与 cookie 复用说明
+- `docs/native-capabilities.md`：原生工具 / 插件 / bundled skill 的判重启用规则
 - `docs/openviking-memory.md`：OpenViking 记忆插件可选接入说明
 - `skills/`：仓库内置的全局技能
 - `shared-profile/`：共享 `USER.md` / `MEMORY.md` / `TOOLS.md` 初始模板
@@ -46,6 +48,7 @@
 
 - 如果 `~/.openclaw/openclaw.json` 不存在，配置脚本会自动创建最小可用配置
 - 如果本地已经有完整的 `.state/feishu-accounts.json`，可以跳过飞书 provisioning
+- 原生工具大多不需要单独“安装”；仓库会做启用和校验，只对确实需要的 bundled/native 项做去重处理
 
 ## 快速开始
 
@@ -120,6 +123,30 @@ npm run configure:openclaw -- --extra-skills /abs/path/to/skillA,/abs/path/to/sk
 npm run configure:openclaw -- --dry-run
 ```
 
+## 启用并校验 OpenClaw 原生能力
+
+```bash
+npm run ensure:native-capabilities
+```
+
+这一步不是再装一遍 OpenClaw，而是做三件事：
+
+- 先判重：已经由 OpenClaw 原生提供的能力不重复安装
+- 再启用：补齐 `tools.profile=full`、Feishu 插件、语音、`peekaboo` 等必要配置
+- 再校验：检查关键 native/bundled 提供者是否已 ready 或 loaded
+
+当前会收敛这些能力：
+
+- 核心原生工具：`web_search`、`web_fetch`、`browser`、`pdf`、`image`、`tts`、`Read`、`Write`、`Edit`、`exec`、`process`、`subagents`、`canvas`、`message`、`nodes`
+- Feishu 相关工具：`feishu_doc`、`feishu_app_scopes`、`feishu_drive`、`feishu_wiki`、`feishu_chat`、`feishu_bitable_*`
+- Native / bundled 提供者：`peekaboo`、`feishu-doc`、`feishu-drive`、`feishu-perm`、`feishu-wiki`
+
+说明：
+
+- 上面大部分是 OpenClaw 核心工具或 Feishu 插件工具，不是仓库自带 skill，不会被重复复制安装
+- `feishu_app_scopes` 由 `feishu-perm` 提供
+- `feishu_chat` 和 `feishu_bitable_*` 由 Feishu 插件提供
+
 ## 全流程
 
 ```bash
@@ -131,7 +158,8 @@ npm run setup:all
 1. 创建 4 个飞书应用
 2. 安装 suite 到 `~/.openclaw`
 3. 写入共享画像与 4 个 agent 模板
-4. 安装仓库内置 skills（含语音能力）
+4. 启用并校验原生能力
+5. 安装仓库内置 skills（含语音能力）
 
 如果当前机器已经有可复用的 `.state/feishu-accounts.json`，可以执行：
 
@@ -172,6 +200,11 @@ npm run install:skills
 - `fun-feed`
 - `music-scout`
 - `xiaomi-sentinel`
+
+说明：
+
+- 这一条只安装仓库自带的 managed skills
+- OpenClaw 原生能力和 bundled/native provider 请用 `npm run ensure:native-capabilities`
 
 ## 可选：接入 OpenViking 记忆插件
 
@@ -265,5 +298,6 @@ npm run bootstrap:doubao-cookie -- --source-browser chrome --source-profile Defa
 ```bash
 npm run render:profile -- --demo
 npm run configure:openclaw -- --dry-run
+npm run ensure:native-capabilities -- --dry-run
 npm run validate:skill
 ```

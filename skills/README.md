@@ -41,6 +41,12 @@
 - 先做筛选和压缩，再做生成和归档
 - 高风险动作保持确认门槛
 
+原生能力补充：
+
+- `web_search`、`web_fetch`、`browser`、`pdf`、`image`、`tts`、`Read`、`Write`、`Edit`、`exec`、`process`、`subagents`、`canvas`、`message`、`nodes` 属于 OpenClaw 原生工具，不在这里重复安装
+- `feishu_doc`、`feishu_app_scopes`、`feishu_drive`、`feishu_wiki`、`feishu_chat`、`feishu_bitable_*` 由 Feishu 插件和其原生扩展提供
+- 这些能力请用 `npm run ensure:native-capabilities` 做判重、启用和校验
+
 安装方式：
 
 ```bash
