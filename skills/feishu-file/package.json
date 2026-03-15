@@ -1,0 +1,9 @@
+{
+  "name": "feishu-file",
+  "version": "1.0.1",
+  "description": "Send local files to Feishu",
+  "scripts": {
+    "send": "bash scripts/send_file.sh"
+  },
+  "dependencies": {}
+}

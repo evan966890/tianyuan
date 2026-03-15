@@ -1,0 +1,33 @@
+{
+  "mcpServers": {
+    "feishu-doc-manager": {
+      "command": "bash",
+      "args": [
+        "<FEISHU_DOC_MANAGER_INSTALL_PATH>/install.sh"
+      ],
+      "env": {
+        "FEISHU_APP_ID": "<YOUR_FEISHU_APP_ID>",
+        "FEISHU_APP_SECRET": "<YOUR_FEISHU_APP_SECRET>"
+      },
+      "_comment": "飞书文档管理 MCP Server。需先 git clone https://github.com/Shuai-DaiDai/feishu-doc-manager.git"
+    },
+    "feishu-general": {
+      "command": "node",
+      "args": [
+        "<FEISHU_MCP_SERVER_PATH>/index.js"
+      ],
+      "env": {
+        "FEISHU_APP_ID": "<YOUR_FEISHU_APP_ID>",
+        "FEISHU_APP_SECRET": "<YOUR_FEISHU_APP_SECRET>"
+      },
+      "_comment": "通用飞书 MCP Server（如 OpenClaw 自带的飞书工具集）"
+    }
+  },
+  "_placeholders": {
+    "<YOUR_FEISHU_APP_ID>": "你的飞书 App ID，格式如 cli_a5xxxxxxxxxxxxx，从 https://open.feishu.cn/app 获取",
+    "<YOUR_FEISHU_APP_SECRET>": "你的飞书 App Secret，从飞书开放平台应用详情页获取",
+    "<FEISHU_DOC_MANAGER_INSTALL_PATH>": "feishu-doc-manager 仓库克隆后的本地路径",
+    "<FEISHU_MCP_SERVER_PATH>": "飞书 MCP Server 的安装路径"
+  },
+  "_instructions": "1. 将此文件内容合并到 ~/.claude/mcp.json 中；2. 替换所有 <PLACEHOLDER> 为实际值；3. 删除 _comment、_placeholders、_instructions 字段；4. 重启 Claude Code"
+}
